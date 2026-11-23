@@ -1,0 +1,25 @@
+{
+  "name": "cinema-cashier",
+  "version": "1.0.0",
+  "description": "Members:\r 1. Habiburrahman Al Ghiffary (@Famuute)\r 2. Athailla Azrial Abbas (@athaabbas)\r 3. Ahmad Saifur Ridho (@saifurido)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Famuute/cinema-cashier.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Famuute/cinema-cashier/issues"
+  },
+  "homepage": "https://github.com/Famuute/cinema-cashier#readme",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
