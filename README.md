@@ -1,8 +1,10 @@
 # Cinema Cashier
 
-## Anggota Tim & Tabel Kontribusi
+Cinema Cashier is a Typescript based application designed to help cinema cashiers record, calculate, and manage movie ticket transaction quickly and accurately. The Application provides CRUD and Search features, replacing manual record-keeping methods that are prone to calculation errors.
 
-| No | Nama | NIM | GitHub | Fitur / Bagian Kode | Pull Request Utama |
+## Team Member Contribution Table 
+
+| No | Nama | NIM | GitHub | Feature / Code Sections | Main Pull Request Link |
 |:--:|------|:---:|--------|---------------------|--------------------|
 | 1 | Habiburrahman Al Ghiffary | 263140707111011 | [@Famuute](https://github.com/Famuute) | Repository setup, README, Read Feature, Search Feature, | - |
 | 2 | Athailla Azrial Abbas | 263140707111110 | [@athaabbas](https://github.com/athaabbas) | Update Feature, Delete Feature, Report Part A  | - |
