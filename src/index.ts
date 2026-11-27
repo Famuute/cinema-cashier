@@ -11,33 +11,33 @@ import * as readlineSync from "readline-sync";
 // bentuk data satu tiket (ini entitas utama program kita)
 interface Tiket {
   id: string;            // kode unik tiket, contoh: TKT-001
-  judulFilm: string;     // film yang ditonton
-  jenisStudio: string;   // Reguler / Sweetbox / VIP
-  jumlahTiket: number;   // banyak tiket yang dibeli
-  totalHarga: number;    // dihitung otomatis lewat hitungTotal()
-  sudahBayar: boolean;   // true kalau sudah lunas
+  movieTitle: string;     // film yang ditonton
+  studioType: string;   // Reguler / Sweetbox / VIP
+  quantity: number;   // banyak tiket yang dibeli
+  totalPrice: number;    // dihitung otomatis lewat calculateTotal()
+  isPaid: boolean;   // true kalau sudah lunas
 }
 
 // ---------- FUNGSI ----------
 
 // Fungsi 1: hitung total harga tiket, hasilnya berupa number
-function hitungTotal(jenisStudio: string, jumlah: number): number {
+function calculateTotal(studioType: string, tickets: number): number {
   // kalau jumlah nggak masuk akal, langsung balikin 0
-  if (jumlah <= 0 || Number.isNaN(jumlah)) {
+  if (tickets <= 0 || Number.isNaN(tickets)) {
     return 0;
   }
 
   // harga per tiket ditentukan dari jenis studio
-  let hargaSatuan: number;
-  switch (jenisStudio) {
+  let ticketPrice: number;
+  switch (studioType) {
     case "Reguler":
-      hargaSatuan = 35000;
+      ticketPrice = 35000;
       break;
     case "Sweetbox":
-      hargaSatuan = 50000;
+      ticketPrice = 50000;
       break;
     case "VIP":
-      hargaSatuan = 100000;
+      ticketPrice = 100000;
       break;
     default:
       // studio tidak dikenal
@@ -45,10 +45,10 @@ function hitungTotal(jenisStudio: string, jumlah: number): number {
   }
 
   // total = harga satuan x jumlah tiket
-  let total: number = hargaSatuan * jumlah;
+  let total: number = ticketPrice * tickets;
 
   // beli 5 tiket atau lebih dapat diskon 10%
-  if (jumlah >= 5) {
+  if (tickets >= 5) {
     total -= total * 0.1;
   }
 
@@ -61,16 +61,16 @@ function formatRupiah(angka: number): string {
 }
 
 // Fungsi 3: cetak tampilan menu utama (nggak ngembaliin apa-apa, jadi void)
-function tampilkanMenu(): void {
+function showMenu(): void {
   console.log("=================================");
   console.log("        CINEMA CASHIER");
   console.log("=================================");
-  console.log("1. Tambah tiket");
-  console.log("2. Lihat semua tiket");
-  console.log("3. Ubah tiket");
-  console.log("4. Hapus tiket");
-  console.log("5. Cari tiket");
-  console.log("0. Keluar");
+  console.log("1. Add ticket");
+  console.log("2. All tickets");
+  console.log("3. Edit ticket");
+  console.log("4. Delete ticket");
+  console.log("5. Search ticket");
+  console.log("0. Exit");
   console.log("---------------------------------");
 }
 
@@ -98,43 +98,43 @@ function validasiPilihanMenu(input: string): boolean {
 function tampilkanDaftarTiket(daftar: Tiket[]): void {
   // kalau datanya kosong, kasih pesan saja
   if (daftar.length === 0) {
-    console.log("Belum ada data tiket.\n");
+    console.log("No ticket data yet.\n");
     return;
   }
 
   let totalPendapatan: number = 0; // dijumlahkan sambil looping
 
   for (const tiket of daftar) {
-    const status: string = tiket.sudahBayar ? "Lunas" : "Belum bayar";
+    const status: string = tiket.isPaid ? "Paid" : "Not Paid";
     let catatan: string = "";
 
     // Cek apakah tiket belum dibayar
-    if (!tiket.sudahBayar) {
+    if (!tiket.isPaid) {
       // Cek apakah tagihannya besar
-      if (tiket.totalHarga > 100000) {
-        catatan = " (Tagihan besar!)";
+      if (tiket.totalPrice > 100000) {
+        catatan = " (Big bill!)";
       }
     }
 
     console.log(
-      `${tiket.id} | ${tiket.judulFilm} | ${tiket.jenisStudio} | ` +
-        `${tiket.jumlahTiket} tiket | ${formatRupiah(tiket.totalHarga)} | ${status}${catatan}`
+      `${tiket.id} | ${tiket.movieTitle} | ${tiket.studioType} | ` +
+        `${tiket.quantity} tiket | ${formatRupiah(tiket.totalPrice)} | ${status}${catatan}`
     );
-    totalPendapatan += tiket.totalHarga; // tambahkan ke total
+    totalPendapatan += tiket.totalPrice; // tambahkan ke total
   }
 
-  console.log(`\nTotal pendapatan: ${formatRupiah(totalPendapatan)}\n`);
+  console.log(`\nTotal Income: ${formatRupiah(totalPendapatan)}\n`);
 }
 
 // ---------- DATA AWAL (SEED) ----------
 
 // 5 data contoh supaya menu "lihat" ada isinya
 const daftarTiket: Tiket[] = [
-  { id: "TKT-001", judulFilm: "Laskar Pelangi", jenisStudio: "Reguler", jumlahTiket: 2, totalHarga: hitungTotal("Reguler", 2), sudahBayar: true },
-  { id: "TKT-002", judulFilm: "Pengabdi Setan", jenisStudio: "VIP", jumlahTiket: 1, totalHarga: hitungTotal("VIP", 1), sudahBayar: true },
-  { id: "TKT-003", judulFilm: "Dilan 1990", jenisStudio: "Sweetbox", jumlahTiket: 2, totalHarga: hitungTotal("Sweetbox", 2), sudahBayar: false },
-  { id: "TKT-004", judulFilm: "Kuntilanak", jenisStudio: "Reguler", jumlahTiket: 5, totalHarga: hitungTotal("Reguler", 5), sudahBayar: true },
-  { id: "TKT-005", judulFilm: "Warkop DKI", jenisStudio: "VIP", jumlahTiket: 3, totalHarga: hitungTotal("VIP", 3), sudahBayar: false },
+  { id: "TKT-001", movieTitle: "Laskar Pelangi", studioType: "Reguler", quantity: 2, totalPrice: calculateTotal("Reguler", 2), isPaid: true },
+  { id: "TKT-002", movieTitle: "Pengabdi Setan", studioType: "VIP", quantity: 1, totalPrice: calculateTotal("VIP", 1), isPaid: true },
+  { id: "TKT-003", movieTitle: "Dilan 1990", studioType: "Sweetbox", quantity: 2, totalPrice: calculateTotal("Sweetbox", 2), isPaid: false },
+  { id: "TKT-004", movieTitle: "Kuntilanak", studioType: "Reguler", quantity: 5, totalPrice: calculateTotal("Reguler", 5), isPaid: true },
+  { id: "TKT-005", movieTitle: "Warkop DKI", studioType: "VIP", quantity: 3, totalPrice: calculateTotal("VIP", 3), isPaid: false },
 ];
 
 // ---------- PROGRAM UTAMA ----------
@@ -144,12 +144,12 @@ function main(): void {
 
   // loop menu: berhenti kalau user pilih 0
   while (jalan) {
-    tampilkanMenu();
-    const input: string = readlineSync.question("Pilih menu (0-5): ");
+    showMenu();
+    const input: string = readlineSync.question("Choose menu (0-5): ");
 
     // kalau input salah, kasih pesan lalu ulang menu (nggak crash)
     if (!validasiPilihanMenu(input)) {
-      console.log("Input tidak valid! Masukkan angka 0 sampai 5.\n");
+      console.log("Invalid input! Enter a number between 0 and 5.\n");
       continue;
     }
 
@@ -159,25 +159,25 @@ function main(): void {
     switch (pilihan) {
       default:
       // menu belum diimplementasikan, kasih pesan saja
-        console.log("Menu belum tersedia.\n");
+        console.log("The menu is not yet available.\n");
         break;
       case 1:
-        console.log("Fitur tambah tiket belum tersedia (Progress 3).\n");
+        console.log("The add ticket feature is not yet available (Progress 3).\n");
         break;
       case 2:
         tampilkanDaftarTiket(daftarTiket);
         break;
       case 3:
-        console.log("Fitur ubah tiket belum tersedia (Progress 5).\n");
+        console.log("The ticket modification feature is not yet available (Progress 5).\n");
         break;
       case 4:
-        console.log("Fitur hapus tiket belum tersedia (Progress 5).\n");
+        console.log("The delete ticket feature is not yet available (Progress 5).\n");
         break;
       case 5:
-        console.log("Fitur cari tiket belum tersedia (Progress 6).\n");
+        console.log("The ticket search feature is not yet available (Progress 6).\n");
         break;
       case 0:
-        console.log("Terima kasih, sampai jumpa!");
+        console.log("Thank you, see you later!");
         jalan = false; // loop berhenti
         break;
     }
