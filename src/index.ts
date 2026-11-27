@@ -11,7 +11,6 @@ import * as readlineSync from "readline-sync";
 // bentuk data satu tiket (ini entitas utama program kita)
 interface Tiket {
   id: string;            // kode unik tiket, contoh: TKT-001
-  namaPelanggan: string; // nama pembeli
   judulFilm: string;     // film yang ditonton
   jenisStudio: string;   // Reguler / Sweetbox / VIP
   jumlahTiket: number;   // banyak tiket yang dibeli
@@ -19,13 +18,50 @@ interface Tiket {
   sudahBayar: boolean;   // true kalau sudah lunas
 }
 
-// tempat menyimpan semua tiket
-const daftarTiket: Tiket[] = [];
+// ---------- FUNGSI ----------
 
-// ------ FUNGSI ------
+// Fungsi 1: hitung total harga tiket, hasilnya berupa number
+function hitungTotal(jenisStudio: string, jumlah: number): number {
+  // kalau jumlah nggak masuk akal, langsung balikin 0
+  if (jumlah <= 0 || Number.isNaN(jumlah)) {
+    return 0;
+  }
 
-// Fungsi 1: tampilan menu utama
-function tampilkanMenu(): void{
+  // harga per tiket ditentukan dari jenis studio
+  let hargaSatuan: number;
+  switch (jenisStudio) {
+    case "Reguler":
+      hargaSatuan = 35000;
+      break;
+    case "Sweetbox":
+      hargaSatuan = 50000;
+      break;
+    case "VIP":
+      hargaSatuan = 100000;
+      break;
+    default:
+      // studio tidak dikenal
+      return 0;
+  }
+
+  // total = harga satuan x jumlah tiket
+  let total: number = hargaSatuan * jumlah;
+
+  // beli 5 tiket atau lebih dapat diskon 10%
+  if (jumlah >= 5) {
+    total -= total * 0.1;
+  }
+
+  return total;
+}
+
+// Fungsi 2: ubah angka jadi tulisan rupiah, contoh 35000 jadi "Rp35.000"
+function formatRupiah(angka: number): string {
+  return "Rp" + angka.toLocaleString("id-ID");
+}
+
+// Fungsi 3: cetak tampilan menu utama (nggak ngembaliin apa-apa, jadi void)
+function tampilkanMenu(): void {
   console.log("=================================");
   console.log("        CINEMA CASHIER");
   console.log("=================================");
@@ -38,6 +74,7 @@ function tampilkanMenu(): void{
   console.log("---------------------------------");
 }
 
+// Fungsi 4: cek apakah input menu valid (angka bulat 0 sampai 5), hasilnya true/false
 function validasiPilihanMenu(input: string): boolean {
   // buang spasi di depan dan belakang
   const teks: string = input.trim();
@@ -53,24 +90,66 @@ function validasiPilihanMenu(input: string): boolean {
     return false;
   }
 
-  // harus bulat dan ada di rentang menu 0 sampai 5
+  // harus bulat dan ada di rentang menu
   return Number.isInteger(angka) && angka >= 0 && angka <= 5;
 }
 
+// Fungsi 5: tampilkan semua tiket pakai perulangan
+function tampilkanDaftarTiket(daftar: Tiket[]): void {
+  // kalau datanya kosong, kasih pesan saja
+  if (daftar.length === 0) {
+    console.log("Belum ada data tiket.\n");
+    return;
+  }
+
+  let totalPendapatan: number = 0; // dijumlahkan sambil looping
+
+  for (const tiket of daftar) {
+    const status: string = tiket.sudahBayar ? "Lunas" : "Belum bayar";
+    let catatan: string = "";
+
+    // Cek apakah tiket belum dibayar
+    if (!tiket.sudahBayar) {
+      // Cek apakah tagihannya besar
+      if (tiket.totalHarga > 100000) {
+        catatan = " (Tagihan besar!)";
+      }
+    }
+
+    console.log(
+      `${tiket.id} | ${tiket.judulFilm} | ${tiket.jenisStudio} | ` +
+        `${tiket.jumlahTiket} tiket | ${formatRupiah(tiket.totalHarga)} | ${status}${catatan}`
+    );
+    totalPendapatan += tiket.totalHarga; // tambahkan ke total
+  }
+
+  console.log(`\nTotal pendapatan: ${formatRupiah(totalPendapatan)}\n`);
+}
+
+// ---------- DATA AWAL (SEED) ----------
+
+// 5 data contoh supaya menu "lihat" ada isinya
+const daftarTiket: Tiket[] = [
+  { id: "TKT-001", judulFilm: "Laskar Pelangi", jenisStudio: "Reguler", jumlahTiket: 2, totalHarga: hitungTotal("Reguler", 2), sudahBayar: true },
+  { id: "TKT-002", judulFilm: "Pengabdi Setan", jenisStudio: "VIP", jumlahTiket: 1, totalHarga: hitungTotal("VIP", 1), sudahBayar: true },
+  { id: "TKT-003", judulFilm: "Dilan 1990", jenisStudio: "Sweetbox", jumlahTiket: 2, totalHarga: hitungTotal("Sweetbox", 2), sudahBayar: false },
+  { id: "TKT-004", judulFilm: "Kuntilanak", jenisStudio: "Reguler", jumlahTiket: 5, totalHarga: hitungTotal("Reguler", 5), sudahBayar: true },
+  { id: "TKT-005", judulFilm: "Warkop DKI", jenisStudio: "VIP", jumlahTiket: 3, totalHarga: hitungTotal("VIP", 3), sudahBayar: false },
+];
+
+// ---------- PROGRAM UTAMA ----------
 
 function main(): void {
-  let jalan: boolean = true;    // selama true, menu terus muncul
-  let jumlahSalah: number = 0;  // hitung berapa kali user salah input
+  let jalan: boolean = true; // selama true, menu terus muncul
 
   // loop menu: berhenti kalau user pilih 0
   while (jalan) {
     tampilkanMenu();
     const input: string = readlineSync.question("Pilih menu (0-5): ");
 
-    // kalau input salah, kasih pesan lalu ulang menu
+    // kalau input salah, kasih pesan lalu ulang menu (nggak crash)
     if (!validasiPilihanMenu(input)) {
-      jumlahSalah += 1; // tambah hitungan salah
-      console.log(`Input tidak valid! Masukkan angka 0 sampai 5. (salah ke-${jumlahSalah})\n`);
+      console.log("Input tidak valid! Masukkan angka 0 sampai 5.\n");
       continue;
     }
 
@@ -78,20 +157,24 @@ function main(): void {
 
     // jalankan sesuai menu yang dipilih
     switch (pilihan) {
+      default:
+      // menu belum diimplementasikan, kasih pesan saja
+        console.log("Menu belum tersedia.\n");
+        break;
       case 1:
-        console.log("Fitur tambah tiket belum tersedia.\n");
+        console.log("Fitur tambah tiket belum tersedia (Progress 3).\n");
         break;
       case 2:
-        console.log(`Fitur lihat tiket belum tersedia. Data saat ini: ${daftarTiket.length} tiket.\n`);
+        tampilkanDaftarTiket(daftarTiket);
         break;
       case 3:
-        console.log("Fitur ubah tiket belum tersedia.\n");
+        console.log("Fitur ubah tiket belum tersedia (Progress 5).\n");
         break;
       case 4:
-        console.log("Fitur hapus tiket belum tersedia.\n");
+        console.log("Fitur hapus tiket belum tersedia (Progress 5).\n");
         break;
       case 5:
-        console.log("Fitur cari tiket belum tersedia.\n");
+        console.log("Fitur cari tiket belum tersedia (Progress 6).\n");
         break;
       case 0:
         console.log("Terima kasih, sampai jumpa!");
